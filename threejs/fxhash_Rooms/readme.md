@@ -14,5 +14,6 @@ npm run dev
 # Build for production in the dist/ directory
 npm run build
 ```
-### Thank you to Bruno Simon at Threejs Journey for compiling basic threejs functionality 
-### All fxhash functionality was added by Michael Hoehn (cmplx)
+#### Thank you to Bruno Simon at Threejs Journey for compiling basic threejs functionality
+#### More information on Anaver.se integration can be found at https://www.anaver.se or by reaching out to @anaglyph_ic
+#### More information on cmplx media can be found at https://www.cmplx.media
