@@ -1,29 +1,28 @@
 {
-  "repository": "#",
-  "license": "UNLICENSED",
+  "name": "fxhash-boilerplate-webpack",
+  "version": "1.0.0",
+  "description": "a boilerplate to create a generative token on fxhash",
+  "main": "index.js",
+  "author": "fxhash",
+  "license": "MIT",
   "scripts": {
-    "build": "webpack --config ./bundler/webpack.prod.js",
-    "dev": "webpack serve --config ./bundler/webpack.dev.js"
+    "build": "webpack --config ./config/webpack.config.prod.js",
+    "start": "webpack serve --config ./config/webpack.config.dev.js"
   },
-  "dependencies": {
-    "@babel/core": "^7.17.10",
-    "@babel/preset-env": "^7.17.10",
-    "babel-loader": "^8.2.5",
-    "clean-webpack-plugin": "^4.0.0",
-    "copy-webpack-plugin": "^10.2.4",
-    "css-loader": "^6.7.1",
-    "file-loader": "^6.2.0",
-    "html-loader": "^3.1.0",
-    "html-webpack-plugin": "^5.5.0",
-    "lil-gui": "^0.16.1",
-    "mini-css-extract-plugin": "^2.6.0",
-    "portfinder-sync": "0.0.2",
-    "raw-loader": "^4.0.2",
-    "style-loader": "^3.3.1",
-    "three": "^0.140.0",
-    "webpack": "^5.72.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.8.1",
-    "webpack-merge": "^5.8.0"
+  "devDependencies": {
+    "adm-zip": "^0.5.9",
+    "copy-webpack-plugin": "^9.0.1",
+    "css-loader": "^6.4.0",
+    "d3": "7.0.0",
+    "graphql-request": "^3.7.0",
+    "gsap": "^3.5.1",
+    "html-webpack-plugin": "^5.4.0",
+    "lil-gui": "0.17.0",
+    "style-loader": "^3.3.0",
+    "textures": "1.2.3",
+    "three": "0.135.0",
+    "webpack": "^5.59.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.3.1"
   }
 }
