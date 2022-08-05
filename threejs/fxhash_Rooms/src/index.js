@@ -122,7 +122,7 @@ meshB.updateMatrix();
 let bspA = CSG.fromMesh( meshA );
 let bspB = CSG.fromMesh( meshB );
 
-let bspResult = bspA.subtract(bspB);
+let bspResult = bspA.union(bspB);
 let meshResult = CSG.toMesh( bspResult, meshA.matrix, meshA.material );
 
 scene.add(meshResult); // <---- anaglyphic does this work for anaver.se integration?
