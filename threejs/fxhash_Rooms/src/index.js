@@ -88,6 +88,27 @@ figures.forEach((fig) => (figureMap[fig.name] = fig));
 // box.castShadow = true;
 // box.receiveShadow = true;
 
+let roomCount = 5;
+let subRooms = new THREE.Group();
+scene.add(subRooms);
+
+const createFloorPlan = () => {
+  for(let i = 0; i < roomCount; i++){
+
+    // create the floor sub-rooms
+    const floorBoundary = new THREE.Mesh(
+      new THREE[figureMap.plane.geometry.type](...figureMap.plane.geometry.args),
+      material
+    );
+    floorBoundary.rotation.x = figureMap.plane.rot.x;
+    floorBoundary.position.set(figureMap.plane.pos.x, figureMap.plane.pos.y, figureMap.plane.pos.z); // <--- needs to move to a new random position.x/z foreach [i]
+    subRooms.add(floorBoundary);
+  };
+};
+
+createFloorPlan();
+console.log("Number of floor sub-rooms = " + subRooms.children.length);
+
 const plane = new THREE.Mesh(
   new THREE[figureMap.plane.geometry.type](...figureMap.plane.geometry.args),
   material
@@ -97,7 +118,7 @@ plane.position.y = figureMap.plane.pos.y;
 
 plane.receiveShadow = true;
 
-scene.add(plane);
+//scene.add(plane);
 
 /**
  * Constructive Solid Geometry Tests
@@ -105,27 +126,27 @@ scene.add(plane);
 // let meshA = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), material);
 // let meshB = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), material);
 
-const meshA = new THREE.Mesh(
-  new THREE[figureMap.box.geometry.type](...figureMap.box.geometry.args),
-  material
-);
-const meshB = new THREE.Mesh(
-  new THREE[figureMap.box.geometry.type](...figureMap.box.geometry.args),
-  material
-);
+// const meshA = new THREE.Mesh(
+//   new THREE[figureMap.box.geometry.type](...figureMap.box.geometry.args),
+//   material
+// );
+// const meshB = new THREE.Mesh(
+//   new THREE[figureMap.box.geometry.type](...figureMap.box.geometry.args),
+//   material
+// );
 
-meshB.position.add(new THREE.Vector3( 0.5, 0.5, 0.5));
+// meshB.position.add(new THREE.Vector3( 0.5, 0.5, 0.5));
 
-meshA.updateMatrix();
-meshB.updateMatrix();
+// meshA.updateMatrix();
+// meshB.updateMatrix();
 
-let bspA = CSG.fromMesh( meshA );
-let bspB = CSG.fromMesh( meshB );
+// let bspA = CSG.fromMesh( meshA );
+// let bspB = CSG.fromMesh( meshB );
 
-let bspResult = bspA.union(bspB);
-let meshResult = CSG.toMesh( bspResult, meshA.matrix, meshA.material );
+// let bspResult = bspA.union(bspB);
+// let meshResult = CSG.toMesh( bspResult, meshA.matrix, meshA.material );
 
-scene.add(meshResult); // <---- anaglyphic does this work for anaver.se integration?
+// scene.add(meshResult);
 
 /**
  * Sizes
