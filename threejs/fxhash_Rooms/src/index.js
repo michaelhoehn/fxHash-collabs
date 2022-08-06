@@ -101,7 +101,7 @@ const createFloorPlan = () => {
       material
     );
     floorBoundary.rotation.x = figureMap.plane.rot.x;
-    floorBoundary.position.set(figureMap.plane.pos.x, figureMap.plane.pos.y, figureMap.plane.pos.z); // <--- needs to move to a new random position.x/z foreach [i]
+    floorBoundary.position.set(figureMap.plane.pos.x * fxrand(3), figureMap.plane.pos.y, figureMap.plane.pos.z * fxrand(3)); // <--- needs to move to a new random position.x/z foreach [i]
     subRooms.add(floorBoundary);
   };
 };
