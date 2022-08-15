@@ -98,16 +98,16 @@ const genererFigures = (fxhash) => {
       type: "PlaneGeometry", // Type of geometry
       args: [
         // Arguments relevant to the geometry (check THREE API)
-        fxrand(5) * u,
-        fxrand(5) * u,
+        100,
+        100,
       ],
     },
     //0, -0.25, -1.5
     pos: {
       // Position
-      x: fxrand(5) * u, // <--- How can I get a new number within a forloop?
+      x: 0,
       y: 0,
-      z: fxrand(5) * u,
+      z: 0,
     },
     rot: {
       // Rotation
