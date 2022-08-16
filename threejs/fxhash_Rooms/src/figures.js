@@ -98,16 +98,16 @@ const genererFigures = (fxhash) => {
       type: "PlaneGeometry", // Type of geometry
       args: [
         // Arguments relevant to the geometry (check THREE API)
-        5 * u,
-        5 * u,
+        100,
+        100,
       ],
     },
     //0, -0.25, -1.5
     pos: {
       // Position
-      x: 0 * u,
-      y: -0.5 * u,
-      z: 0 * u,
+      x: 0,
+      y: 0,
+      z: 0,
     },
     rot: {
       // Rotation
