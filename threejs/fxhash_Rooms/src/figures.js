@@ -31,95 +31,190 @@ const genererFigures = (fxhash) => {
   // Here the variable u is the unit used to scale
   const u = 1;
 
-  // Add the box
+  // The floor generator yields a "position" array of points which
+  // are a simple polygon
 
-  figures.push({
-    geometry: {
-      type: "BoxGeometry", // Type of geometry
-      args: [
-        // Arguments relevant to the geometry (check THREE API)
-        fxrand() * u, // Cube width
-        fxrand() * u, // Cube height
-        fxrand() * u, // Cube depth
-      ],
-    },
+  function floorGenerator() {
+    // Simple Closed Polygon Algorithm // Source: https://openprocessing.org/sketch/1626897 by Michael Hoehn
+    let resolution = Math.floor(4 + fxrand() * 11);
+    let stepSize = 1 + fxrand() * 4;
+    let radius = Math.floor(2 + fxrand() * 5);
+    let x = [];
+    let y = [];
+    let angle = (Math.PI / 180) * (360 / resolution);
+    const positions = [];
 
-    pos: {
-      // Position
-      x: 0 * u,
-      y: -0.25 * u,
-      z: -1.5 * u,
-    },
-    rot: {
-      // Rotation
-      x: 0,
-      y: 0,
-      z: 0,
-    },
-    name: "box",
-    lines: true, // Display color segments (like wireframe, but faces not triangles)
-    hatch: true, // Fill with white texture
-    full: false, // Fill with color texture (in the anaverse, red and cyan)
-  });
+    for (let i = 0; i < resolution; i++) {
+      x.push(Math.cos(angle * i) * radius);
+      y.push(Math.sin(angle * i) * radius);
+    }
 
-  //sphere
-  figures.push({
-    geometry: {
-      type: "SphereGeometry", // Type of geometry
-      args: [
-        // Arguments relevant to the geometry (check THREE API)
-        0.5 * u,
-        32 * u,
-        32 * u,
-      ],
-    },
+    for (let i = 0; i < resolution; i++) {
+      var arg;
+      if (i === 0) {
+        arg = "moveTo";
+      } else {
+        arg = "lineTo";
+      }
+      const splinePts = {
+        draw: arg,
+        drawArgs: [
+          (x[i] += fxrand() * stepSize - stepSize / 2),
+          (y[i] += fxrand() * stepSize - stepSize / 2),
+        ],
+      };
+      positions.push(splinePts);
+    }
+    return positions;
+  }
 
-    pos: {
-      // Position
-      x: 0 * u,
-      y: 0 * u,
-      z: 0 * u,
-    },
-    rot: {
-      // Rotation
-      x: 0,
-      y: 0,
-      z: 0,
-    },
-    name: "sphere",
-    lines: true, // Display color segments (like wireframe, but faces not triangles)
-    hatch: true, // Fill with white texture
-    full: false, // Fill with color texture (in the anaverse, red and cyan)
-  });
+  // Two helpers to build the walls
 
-  //plane
-  figures.push({
-    geometry: {
-      type: "PlaneGeometry", // Type of geometry
-      args: [
-        // Arguments relevant to the geometry (check THREE API)
-        100,
-        100,
-      ],
-    },
-    //0, -0.25, -1.5
-    pos: {
-      // Position
-      x: 0,
-      y: 0,
-      z: 0,
-    },
-    rot: {
-      // Rotation
-      x: -Math.PI * 0.5,
-      y: 0,
-      z: 0,
-    },
-    name: "plane",
-    lines: true, // Display color segments (like wireframe, but faces not triangles)
-    hatch: true, // Fill with white texture
-    full: false, // Fill with color texture (in the anaverse, red and cyan)
-  });
+  function interpolate(a, b, frac) {
+    var nx = a.x + (b.x - a.x) * frac;
+    var ny = a.y + (b.y - a.y) * frac;
+    return { x: nx, y: ny };
+  }
+
+  function getDistance(a, b) {
+    let y = b.x - a.x;
+    let x = b.y - a.y;
+
+    return Math.sqrt(x * x + y * y);
+  }
+
+  // The addRoom function, which adds a room centered on the px/py/pz position;
+
+  function addRoom(px, py, pz) {
+    // generate a polygon
+    const roomPos = floorGenerator();
+
+    // create an array containing the walls
+    const midpoints = [];
+
+    //
+    // In the anaverse, boxes are perf cheap (because they're instanced)
+    // So creating walls of beams seems to be a cheap way to create
+    // interesting textures
+    //
+
+    // place the wall beams between two points of each polygon
+    for (let i = 0; i < roomPos.length - 1; i++) {
+      var a = { x: roomPos[i].drawArgs[0], y: roomPos[i].drawArgs[1] };
+      var b = { x: roomPos[i + 1].drawArgs[0], y: roomPos[i + 1].drawArgs[1] };
+
+      var dist = getDistance(a, b);
+      var height = 2 + fxrand() * 5;
+
+      // give 20% chances per wall that there could be a door
+      var door = fxrand() < 0.2;
+
+      // place the beams coordinates;
+      for (let j = 0; j < dist * 10; j++) {
+        var point = interpolate(a, b, j / (dist * 10));
+        point.height = height + fxrand() / 2;
+        point.doorstep = 0;
+        if (door & (j > dist * 10 * 0.3) && j < dist * 10 * 0.7) {
+          point.height = height * 0.2 + fxrand() / 2;
+          point.doorstep = height * 0.8;
+        }
+        midpoints.push(point);
+      }
+    }
+
+    // place the wall beams between the origin and the last point of the polygon
+    var a = {
+      x: roomPos[roomPos.length - 1].drawArgs[0],
+      y: roomPos[roomPos.length - 1].drawArgs[1],
+    };
+    var b = { x: roomPos[0].drawArgs[0], y: roomPos[0].drawArgs[1] };
+
+    var dist = getDistance(a, b);
+    var height = 2 + fxrand() * 5;
+    var door = fxrand() < 0.2;
+    for (let j = 0; j < dist * 10; j++) {
+      var point = interpolate(a, b, j / (dist * 10));
+      point.height = height + fxrand() / 2;
+      point.doorstep = 0;
+      if (door & (j > dist * 10 * 0.3) && j < dist * 10 * 0.7) {
+        point.height = height * 0.2 + fxrand() / 2;
+        point.doorstep = height * 0.8;
+      }
+      midpoints.push(point);
+    }
+
+    // "create" the actual geometry for the wall beams
+    midpoints.forEach((d) => {
+      figures.push({
+        geometry: { type: "BoxGeometry", args: [0.1, d.height, 0.1] },
+        pos: {
+          // Position
+          x: (px + d.x) * u,
+          // place them higher if there's a door (it's 0 when there isn't one)
+          y: (py + d.doorstep + d.height / 2) * u,
+          z: (pz + d.y) * u,
+        },
+        rot: {
+          // Rotation
+          x: 0,
+          y: fxrand() * Math.PI * 2,
+          z: 0,
+        },
+        scale: {
+          x: 1,
+          y: 1,
+          z: 1,
+        },
+        name: "wall",
+        lines: true, // Display color segments (like wireframe, but faces not triangles)
+        hatch: true, // Fill with white texture
+        full: false, // Fill with color texture (in the anaverse, red and cyan)
+      });
+    });
+
+    //"create" the floor extrude geometry
+    figures.push({
+      geometry: {
+        type: "ExtrudeGeometry", // Type of geometry
+        shapeArgs: roomPos,
+        extrudeSettings: {
+          steps: 1,
+          depth: 0.2,
+          bevelEnabled: false,
+          bevelThickness: 0,
+          bevelSize: 0,
+          bevelOffset: 0,
+          bevelSegments: 0,
+        },
+      },
+      pos: {
+        // Position
+        x: px * u,
+        y: py * u,
+        z: pz * u,
+      },
+      rot: {
+        // Rotation
+        x: Math.PI * 0.5,
+        y: 0,
+        z: 0,
+      },
+      scale: {
+        x: 1,
+        y: 1,
+        z: 0.1,
+      },
+      name: "floor",
+      lines: true, // Display color segments (like wireframe, but faces not triangles)
+      hatch: true, // Fill with white texture
+      full: false, // Fill with color texture (in the anaverse, red and cyan)
+    });
+  }
+
+  // add the rooms
+  addRoom(0, 0, 0);
+  addRoom(-7 - fxrand() * 5, 5 + fxrand() * 5, 7 + fxrand() * 5);
+  addRoom(7 + fxrand() * 5, 10 + fxrand() * 5, 7 + fxrand() * 5);
 
   return { figures, features };
 };

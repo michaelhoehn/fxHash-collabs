@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "lil-gui";
 import { genererFigures } from "./figures";
-import {CSG} from "three-csg-ts";
+import { CSG } from "three-csg-ts";
 
 /**
  * Base
@@ -15,7 +15,7 @@ const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
-scene.background = new THREE.Color('white');
+scene.background = new THREE.Color("white");
 
 /**
  * Lights
@@ -61,110 +61,81 @@ gui.add(material, "roughness").min(0).max(1).step(0.001);
 
 /**
  * Helpers
- * 
+ *
  * Description: Axes and grid helpers
  * TODO: Remove before publishing
-*/
+ */
 
-// Axes Helper 
-const axes = new THREE.AxesHelper( 5 );
-scene.add( axes );
+// Axes Helper
+const axes = new THREE.AxesHelper(5);
+scene.add(axes);
 
 // Grid Helper
 const gridSize = 10;
 const gridDivisions = 10;
-const gridHelper = new THREE.GridHelper( gridSize, gridDivisions, 'black', 'pink' );
-scene.add( gridHelper );
+const gridHelper = new THREE.GridHelper(
+  gridSize,
+  gridDivisions,
+  "black",
+  "pink"
+);
+scene.add(gridHelper);
 
 /**
  * Objects
-*/
+ */
 
-// Simple Closed Polygon Algorithm // Source: https://openprocessing.org/sketch/1626897 by Michael Hoehn
-let resolution = Math.floor(4 + fxrand() * 11); 
-let stepSize = 1 + fxrand() * 4; 
-let radius = Math.floor(2 + fxrand() * 5); 
-let x = [];
-let y = []; 
-let angle = (Math.PI / 180) * (360 / resolution);
-const positions = [];
+const roomMaterial = new THREE.MeshBasicMaterial({
+  color: "gray",
+  wireframe: false,
+});
 
-for ( let i = 0; i < resolution; i++ ) {
-  x.push(Math.cos(angle * i) * radius);
-  y.push(Math.sin(angle * i) * radius);
+var gen = genererFigures(fxhash);
+
+var figures = gen.figures;
+
+console.log(figures);
+
+/// manufacture
+
+for (let i = 0; i < figures.length; i++) {
+  var roomMesh;
+  var roomGeomery;
+
+  // check if it's an extrude geometry and hence needs special treatment
+  if (figures[i].geometry.hasOwnProperty("extrudeSettings")) {
+    var roomShape = new THREE.Shape();
+
+    figures[i].geometry.shapeArgs.forEach((d) =>
+      roomShape[d.draw](...d.drawArgs)
+    );
+
+    roomGeomery = new THREE.ExtrudeGeometry(
+      roomShape,
+      figures[0].extrudeSettings
+    );
+  } else {
+    //else, if not the case
+    roomGeomery = new THREE[figures[i].geometry.type](
+      ...figures[i].geometry.args
+    );
+  }
+
+  roomMesh = new THREE.Mesh(roomGeomery, material);
+  roomMesh.castShadow = true;
+  roomMesh.receiveShadow = true;
+
+  roomMesh.position.set(figures[i].pos.x, figures[i].pos.y, figures[i].pos.z);
+  roomMesh.rotation.set(figures[i].rot.x, figures[i].rot.y, figures[i].rot.z);
+  roomMesh.scale.set(
+    figures[i].scale.x,
+    figures[i].scale.y,
+    figures[i].scale.z
+  );
+
+  scene.add(roomMesh);
 }
-
-for ( let i = 0; i < resolution; i++ ) {
-  const splinePts = new THREE.Vector2(
-    x[i] += fxrand() * stepSize - (stepSize/2),
-    y[i] += fxrand() * stepSize - (stepSize/2)
-  )
-  positions.push(splinePts);
-}
-
-const roomShape = new THREE.Shape();
-const extrudeSettings = {
-	steps: 1,
-	depth: 0.2,
-	bevelEnabled: false,
-	bevelThickness: 0,
-	bevelSize: 0,
-	bevelOffset: 0,
-	bevelSegments: 0
-};
-roomShape.setFromPoints( positions );
-
-const roomExtrusionGeometry = new THREE.ExtrudeGeometry( roomShape, extrudeSettings );
-const roomMaterial = new THREE.MeshBasicMaterial( { color: 'gray', wireframe: false } );
-const roomMesh = new THREE.Mesh( roomExtrusionGeometry, material );
-roomMesh.castShadow = true;
-roomMesh.receiveShadow = true;
-
-// Create the room outline using positions[]
-const splineGeometry = new THREE.BufferGeometry().setFromPoints(positions);
-const splineMaterial = new THREE.LineBasicMaterial( { color: 'black' } ); 
-const splineObject = new THREE.Line( splineGeometry, splineMaterial );
-
-scene.add(splineObject);
-scene.add(roomMesh);
-
-splineObject.rotation.x = -Math.PI * 0.5;
-roomMesh.rotation.x = -Math.PI * 0.5;
-
-/**
- * Anaver.se API examples (removed from scene)
- * Add objects using the figure map. Here they are added one by one but one could simply iterate over the figures array to add them all at once.
-*/
-
-const figures = genererFigures(fxhash).figures;
-
-var figureMap = {};
-
-// mapping them by name makes the easier to use
-figures.forEach((fig) => (figureMap[fig.name] = fig));
-
-// Box Geometry 
-const box = new THREE.Mesh(
-  new THREE[figureMap.box.geometry.type](...figureMap.box.geometry.args),
-  material
-);
-box.position.set(figureMap.box.pos.x, figureMap.box.pos.y, figureMap.box.pos.z);
-box.castShadow = true;
-box.receiveShadow = true;
-
-//scene.add(box);
-
-// Plane Geometry
-const plane = new THREE.Mesh(
-  new THREE[figureMap.plane.geometry.type](...figureMap.plane.geometry.args),
-  material
-);
-plane.rotation.x = figureMap.plane.rot.x;
-plane.position.y = figureMap.plane.pos.y;
-
-plane.receiveShadow = true;
-
-//scene.add(plane);
+// manufacture end
 
 /**
  * Sizes
@@ -210,8 +181,8 @@ gui.add(camera.position, "x").min(-50).max(50).step(0.001);
 gui.add(camera.position, "y").min(-50).max(50).step(0.001);
 gui.add(camera.position, "z").min(-50).max(50).step(0.001);
 
-const helper = new THREE.CameraHelper( directionalLight.shadow.camera );
-scene.add( helper );
+const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
+scene.add(helper);
 
 // Controls
 const controls = new OrbitControls(camera, canvas);
@@ -258,17 +229,17 @@ tick();
 
 /**
  * Additional Functions
-*/
+ */
 
 /**
  * Name: getCenterPoint();
  * Description: Get the center point from any mesh geometry using the boundingBox
-*/
+ */
 function getCenterPoint(mesh) {
   var geometry = mesh.geometry;
   geometry.computeBoundingBox();
   var center = new THREE.Vector3();
-  geometry.boundingBox.getCenter( center );
-  mesh.localToWorld( center );
+  geometry.boundingBox.getCenter(center);
+  mesh.localToWorld(center);
   return center;
 }
