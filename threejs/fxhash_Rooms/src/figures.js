@@ -1,5 +1,3 @@
-import { interpolate } from "d3";
-
 const genererFigures = (fxhash) => {
   let alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
   let b58dec = (str) =>
