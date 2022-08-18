@@ -1,19 +1,20 @@
-# Rooms - A collaboration between cmplx media (@c_mplx) and anaglyphic (@anaglyph_ic) 
+# Rooms 
+### A collaboration between cmplx media (@c_mplx) and anaglyphic (@anaglyph_ic) to be published as a gentk compatible with the [Anaverse](www.anaver.se)
 
 ## Setup Instructions
-Download [Node.js](https://nodejs.org/en/download/).
-Run this followed commands:
+This is built on the [fxHash webpack boilerplate](https://github.com/fxhash/fxhash-webpack-boilerplate)
+So you will need to have nodejs installed before running the following commands: 
 
 ``` bash
 # Install dependencies (only the first time)
 npm install
 
 # Run the local server at localhost:8080
-npm run dev
+npm start
 
 # Build for production in the dist/ directory
 npm run build
 ```
-#### Thank you to Bruno Simon at Threejs Journey for compiling basic threejs functionality
-#### More information on Anaver.se integration can be found at https://www.anaver.se or by reaching out to @anaglyph_ic
-#### More information on cmplx media can be found at https://www.cmplx.media
+
+#### [Anaverse](https://www.anaver.se)
+#### [cmplx media](https://www.cmplx.media)
