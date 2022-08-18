@@ -209,67 +209,65 @@ const genererFigures = (fxhash) => {
       full: false, // Fill with color texture (in the anaverse, red and cyan)
     });
 
-    // "create" the vertical column members to extend through the ground plane
-    figures.push({
-      geometry: { type: "BoxGeometry", args: [0.1, 20, 0.1] },
-      pos: {
-        // Anaglypic Question
-        // Can we add a column that runs from each position of the original room polyline down through the ground plane? 
-        // Position for each beam should be the position of each splinePt used to create the polygon from the floor generator
-        x: px * u, 
-        y: py * u - 20/2, // <---- Arbitrary column depth should match the column height and should pass through the ground plane
-        z: pz * u,
-      },
-      rot: {
-        // Rotation
-        x: 0,
-        y: Math.sin(fxrand() * Math.PI * 2),
-        z: 0,
-      },
-      scale: {
-        x: 1,
-        y: 1,
-        z: 1,
-      },
-      name: "column",
-      lines: true, // Display color segments (like wireframe, but faces not triangles)
-      hatch: true, // Fill with white texture
-      full: false, // Fill with color texture (in the anaverse, red and cyan)
+    // "create" the actual geometry for the wall columns
+    roomPos.forEach((rP) => {
+      figures.push({
+        geometry: { type: "BoxGeometry", args: [0.1, 20, 0.1] },
+        pos: {
+          // Position
+          x: (rP.drawArgs[0] + px) * u,
+          y: py * u - 20/2,
+          z: (rP.drawArgs[1]+ pz) * u,
+        },
+        rot: {
+          // Rotation
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+        scale: {
+          x: 1,
+          y: 1,
+          z: 1,
+        },
+        name: "column",
+        lines: true, // Display color segments (like wireframe, but faces not triangles)
+        hatch: true, // Fill with white texture
+        full: false, // Fill with color texture (in the anaverse, red and cyan)
+      });
     });
   }
-
-  // Anaglyphic Question - Can we add a single ground plane? I can't seem to get this working
-  //
-  // // "create" the ground plane to unite all rooms
-  // figures.push({
-  //   geometry: {
-  //     type: "PlaneGeometry",
-  //     args: [
-  //       50 * u,
-  //       50 * u,
-  //     ],
-  //   },
-  //   pos: {
-  //     x: 0,
-  //     y: -5,
-  //     z: 0,
-  //   },
-  //   rot: {
-  //     x: -Math.PI * 0.5,
-  //     y: 0,
-  //     z: 0,
-  //   },
-  //   name: "plane",
-  //   lines: true, // Display color segments (like wireframe, but faces not triangles)
-  //   hatch: true, // Fill with white texture
-  //   full: false, // Fill with color texture (in the anaverse, red and cyan)
-  // });
+  
+  // "create" the ground plane to unite all rooms
+  figures.push({
+    geometry: {
+      type: "PlaneGeometry",
+      args: [
+        50 * u,
+        50 * u,
+      ],
+    },
+    pos: {
+      x: 0,
+      y: -2,
+      z: 0,
+    },
+    rot: {
+      x: -Math.PI * 0.5,
+      y: 0,
+      z: 0,
+    },
+    name: "plane",
+    lines: true, // Display color segments (like wireframe, but faces not triangles)
+    hatch: true, // Fill with white texture
+    full: false, // Fill with color texture (in the anaverse, red and cyan)
+  });
 
   // add the rooms <----------- This can be varied to allow for more rooms
   // always have one at 0,0,0 the use probabilities to determine how many rooms can be added
   addRoom(0, 0, 0);
-  addRoom(-7 - fxrand() * 5, 5 + fxrand() * 5, 7 + fxrand() * 5);
-  addRoom(7 + fxrand() * 5, 10 + fxrand() * 5, 7 + fxrand() * 5);
+  //addRoom(-7 - fxrand() * 5, 5 + fxrand() * 5, 7 + fxrand() * 5);
+  //addRoom(7 + fxrand() * 5, 10 + fxrand() * 5, 7 + fxrand() * 5);
 
   return { figures, features };
 };
