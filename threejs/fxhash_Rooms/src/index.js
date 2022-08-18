@@ -82,11 +82,11 @@ scene.add(gridHelper);
 
 /**
  * Objects
-*/
+ */
 
 // Anaglypic: this can be removed. only a placeholder until can be added to the figures.js
 //
-// // The ground plane 
+// // The ground plane
 // const ground = new THREE.PlaneGeometry(50, 50);
 // const groundMesh = new THREE.Mesh(ground, material);
 // groundMesh.position.y = -5;
@@ -109,8 +109,6 @@ var figures = gen.figures;
 for (let i = 0; i < figures.length; i++) {
   var roomMesh;
   var roomGeomery;
-  var groundPlaneGeometry;
-  var groundPlaneMesh;
 
   // check if it's an extrude geometry and hence needs special treatment
   if (figures[i].geometry.hasOwnProperty("extrudeSettings")) {
@@ -124,10 +122,6 @@ for (let i = 0; i < figures.length; i++) {
       roomShape,
       figures[0].extrudeSettings
     );
-  } else if (figures[i].geometry.type === "PlaneGeometry") {
-    groundPlaneGeometry = new THREE[figures[i].geometry.type](
-      ...figures[i].geometry.args
-    );
   } else {
     roomGeomery = new THREE[figures[i].geometry.type](
       ...figures[i].geometry.args
@@ -140,24 +134,34 @@ for (let i = 0; i < figures.length; i++) {
 
   roomMesh.position.set(figures[i].pos.x, figures[i].pos.y, figures[i].pos.z);
   roomMesh.rotation.set(figures[i].rot.x, figures[i].rot.y, figures[i].rot.z);
-  roomMesh.scale.set(
-    figures[i].scale.x,
-    figures[i].scale.y,
-    figures[i].scale.z
-  );
-
+  if (figures[i].hasOwnProperty("scale")) {
+    roomMesh.scale.set(
+      figures[i].scale.x,
+      figures[i].scale.y,
+      figures[i].scale.z
+    );
+  }
+  /*
   groundPlaneMesh = new THREE.Mesh(groundPlaneGeometry, material);
   groundPlaneMesh.castShadow = true;
   groundPlaneMesh.receiveShadow = true;
-  groundPlaneMesh.position.set(figures[i].pos.x, figures[i].pos.y, figures[i].pos.z);
-  groundPlaneMesh.rotation.set(figures[i].rot.x, figures[i].rot.y, figures[i].rot.z);
-  groundPlaneMesh.scale.set(
+  groundPlaneMesh.position.set(
+    figures[i].pos.x,
+    figures[i].pos.y,
+    figures[i].pos.z
+  );
+  groundPlaneMesh.rotation.set(
+    figures[i].rot.x,
+    figures[i].rot.y,
+    figures[i].rot.z
+  );
+    groundPlaneMesh.scale.set(
     figures[i].scale.x,
     figures[i].scale.y,
     figures[i].scale.z
   );
-
-  scene.add(roomMesh, groundPlaneMesh);
+*/
+  scene.add(roomMesh);
 }
 // manufacture end
 
@@ -186,7 +190,7 @@ window.addEventListener("resize", () => {
 /**
  * Camera
  * TODO: Change to Orthographic Camera
-*/
+ */
 
 // Base camera
 const camera = new THREE.PerspectiveCamera(
@@ -219,7 +223,7 @@ controls.enableDamping = true;
  */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
-  antialias: true
+  antialias: true,
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
