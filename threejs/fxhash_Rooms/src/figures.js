@@ -213,9 +213,11 @@ const genererFigures = (fxhash) => {
     figures.push({
       geometry: { type: "BoxGeometry", args: [0.1, 20, 0.1] },
       pos: {
+        // Anaglypic Question
+        // Can we add a column that runs from each position of the original room polyline down through the ground plane? 
         // Position for each beam should be the position of each splinePt used to create the polygon from the floor generator
         x: px * u, 
-        y: py * u - 20/2,
+        y: py * u - 20/2, // <---- Arbitrary column depth should match the column height and should pass through the ground plane
         z: pz * u,
       },
       rot: {
