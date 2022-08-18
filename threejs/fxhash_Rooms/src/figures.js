@@ -35,7 +35,6 @@ const genererFigures = (fxhash) => {
   // are a simple polygon
 
   function floorGenerator() {
-    // Simple Closed Polygon Algorithm // Source: https://openprocessing.org/sketch/1626897 by Michael Hoehn
     let resolution = Math.floor(4 + fxrand() * 11);
     let stepSize = 1 + fxrand() * 4;
     let radius = Math.floor(2 + fxrand() * 5);
@@ -112,10 +111,10 @@ const genererFigures = (fxhash) => {
       // place the beams coordinates;
       for (let j = 0; j < dist * 10; j++) {
         var point = interpolate(a, b, j / (dist * 10));
-        point.height = height + fxrand() / 2;
+        point.height = height; // + fxrand() / 2
         point.doorstep = 0;
         if (door & (j > dist * 10 * 0.3) && j < dist * 10 * 0.7) {
-          point.height = height * 0.2 + fxrand() / 2;
+          point.height = height * 0.2;  // + fxrand() / 2
           point.doorstep = height * 0.8;
         }
         midpoints.push(point);
@@ -134,10 +133,10 @@ const genererFigures = (fxhash) => {
     var door = fxrand() < 0.2;
     for (let j = 0; j < dist * 10; j++) {
       var point = interpolate(a, b, j / (dist * 10));
-      point.height = height + fxrand() / 2;
+      point.height = height; //+ fxrand() / 2
       point.doorstep = 0;
       if (door & (j > dist * 10 * 0.3) && j < dist * 10 * 0.7) {
-        point.height = height * 0.2 + fxrand() / 2;
+        point.height = height * 0.2; // + fxrand() / 2
         point.doorstep = height * 0.8;
       }
       midpoints.push(point);
@@ -157,7 +156,7 @@ const genererFigures = (fxhash) => {
         rot: {
           // Rotation
           x: 0,
-          y: fxrand() * Math.PI * 2,
+          y: Math.sin(fxrand() * Math.PI * 2),
           z: 0,
         },
         scale: {
@@ -209,12 +208,66 @@ const genererFigures = (fxhash) => {
       hatch: true, // Fill with white texture
       full: false, // Fill with color texture (in the anaverse, red and cyan)
     });
-  }
 
-  // add the rooms
+    // "create" the actual geometry for the wall columns
+    roomPos.forEach((rP) => {
+      figures.push({
+        geometry: { type: "BoxGeometry", args: [0.1, 20, 0.1] },
+        pos: {
+          // Position
+          x: (rP.drawArgs[0] + px) * u,
+          y: py * u - 20/2,
+          z: (rP.drawArgs[1]+ pz) * u,
+        },
+        rot: {
+          // Rotation
+          x: 0,
+          y: 0,
+          z: 0,
+        },
+        scale: {
+          x: 1,
+          y: 1,
+          z: 1,
+        },
+        name: "column",
+        lines: true, // Display color segments (like wireframe, but faces not triangles)
+        hatch: true, // Fill with white texture
+        full: false, // Fill with color texture (in the anaverse, red and cyan)
+      });
+    });
+  }
+  
+  // "create" the ground plane to unite all rooms
+  figures.push({
+    geometry: {
+      type: "PlaneGeometry",
+      args: [
+        50 * u,
+        50 * u,
+      ],
+    },
+    pos: {
+      x: 0,
+      y: -2,
+      z: 0,
+    },
+    rot: {
+      x: -Math.PI * 0.5,
+      y: 0,
+      z: 0,
+    },
+    name: "plane",
+    lines: true, // Display color segments (like wireframe, but faces not triangles)
+    hatch: true, // Fill with white texture
+    full: false, // Fill with color texture (in the anaverse, red and cyan)
+  });
+
+  // add the rooms <----------- This can be varied to allow for more rooms
+  // always have one at 0,0,0 the use probabilities to determine how many rooms can be added
   addRoom(0, 0, 0);
-  addRoom(-7 - fxrand() * 5, 5 + fxrand() * 5, 7 + fxrand() * 5);
-  addRoom(7 + fxrand() * 5, 10 + fxrand() * 5, 7 + fxrand() * 5);
+  //addRoom(-7 - fxrand() * 5, 5 + fxrand() * 5, 7 + fxrand() * 5);
+  //addRoom(7 + fxrand() * 5, 10 + fxrand() * 5, 7 + fxrand() * 5);
 
   return { figures, features };
 };

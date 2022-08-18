@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "lil-gui";
 import { genererFigures } from "./figures";
-import { CSG } from "three-csg-ts";
 
 /**
  * Base
@@ -37,12 +36,12 @@ directionalLight.castShadow = true;
 
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
-directionalLight.shadow.camera.top = 20;
-directionalLight.shadow.camera.bottom = -20;
-directionalLight.shadow.camera.right = 20;
-directionalLight.shadow.camera.left = -20;
+directionalLight.shadow.camera.top = 50;
+directionalLight.shadow.camera.bottom = -50;
+directionalLight.shadow.camera.right = 50;
+directionalLight.shadow.camera.left = -50;
 directionalLight.shadow.camera.near = -20;
-directionalLight.shadow.camera.far = 8;
+directionalLight.shadow.camera.far = 20;
 // directionalLight.shadow.radius = 10
 
 const directionalLightCameraHelper = new THREE.CameraHelper(
@@ -83,7 +82,16 @@ scene.add(gridHelper);
 
 /**
  * Objects
- */
+*/
+
+// Anaglypic: this can be removed. only a placeholder until can be added to the figures.js
+//
+// // The ground plane 
+// const ground = new THREE.PlaneGeometry(50, 50);
+// const groundMesh = new THREE.Mesh(ground, material);
+// groundMesh.position.y = -5;
+// groundMesh.rotation.x = -Math.PI / 2;
+// scene.add(groundMesh);
 
 const roomMaterial = new THREE.MeshBasicMaterial({
   color: "gray",
@@ -94,13 +102,15 @@ var gen = genererFigures(fxhash);
 
 var figures = gen.figures;
 
-console.log(figures);
+//console.log(figures);
 
 /// manufacture
 
 for (let i = 0; i < figures.length; i++) {
   var roomMesh;
   var roomGeomery;
+  var groundPlaneGeometry;
+  var groundPlaneMesh;
 
   // check if it's an extrude geometry and hence needs special treatment
   if (figures[i].geometry.hasOwnProperty("extrudeSettings")) {
@@ -114,8 +124,11 @@ for (let i = 0; i < figures.length; i++) {
       roomShape,
       figures[0].extrudeSettings
     );
+  } else if (figures[i].geometry.type === "PlaneGeometry") {
+    groundPlaneGeometry = new THREE[figures[i].geometry.type](
+      ...figures[i].geometry.args
+    );
   } else {
-    //else, if not the case
     roomGeomery = new THREE[figures[i].geometry.type](
       ...figures[i].geometry.args
     );
@@ -133,7 +146,18 @@ for (let i = 0; i < figures.length; i++) {
     figures[i].scale.z
   );
 
-  scene.add(roomMesh);
+  groundPlaneMesh = new THREE.Mesh(groundPlaneGeometry, material);
+  groundPlaneMesh.castShadow = true;
+  groundPlaneMesh.receiveShadow = true;
+  groundPlaneMesh.position.set(figures[i].pos.x, figures[i].pos.y, figures[i].pos.z);
+  groundPlaneMesh.rotation.set(figures[i].rot.x, figures[i].rot.y, figures[i].rot.z);
+  groundPlaneMesh.scale.set(
+    figures[i].scale.x,
+    figures[i].scale.y,
+    figures[i].scale.z
+  );
+
+  scene.add(roomMesh, groundPlaneMesh);
 }
 // manufacture end
 
@@ -161,7 +185,9 @@ window.addEventListener("resize", () => {
 
 /**
  * Camera
- */
+ * TODO: Change to Orthographic Camera
+*/
+
 // Base camera
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -182,7 +208,7 @@ gui.add(camera.position, "y").min(-50).max(50).step(0.001);
 gui.add(camera.position, "z").min(-50).max(50).step(0.001);
 
 const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
-scene.add(helper);
+//scene.add(helper);
 
 // Controls
 const controls = new OrbitControls(camera, canvas);
@@ -193,6 +219,7 @@ controls.enableDamping = true;
  */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
+  antialias: true
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
