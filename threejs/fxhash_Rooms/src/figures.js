@@ -29,7 +29,11 @@ const genererFigures = (fxhash) => {
   const features = {};
 
   // Here the variable u is the unit used to scale
-  const u = 1;
+  var u = 1;
+
+  if (fxrand() < 0.05) {
+    u += fxrand() * 3;
+  }
 
   // The floor generator yields a "position" array of points which
   // are a simple polygon
@@ -37,7 +41,7 @@ const genererFigures = (fxhash) => {
   function floorGenerator() {
     let resolution = Math.floor(4 + fxrand() * 11);
     let stepSize = 1 + fxrand() * 4;
-    let radius = Math.floor(2 + fxrand() * 5);
+    let radius = Math.floor(5 + fxrand() * 8);
     let x = [];
     let y = [];
     let angle = (Math.PI / 180) * (360 / resolution);
@@ -103,7 +107,7 @@ const genererFigures = (fxhash) => {
       var b = { x: roomPos[i + 1].drawArgs[0], y: roomPos[i + 1].drawArgs[1] };
 
       var dist = getDistance(a, b);
-      var height = 2 + fxrand() * 5;
+      var height = 3.5 + fxrand() * 7;
 
       // give 20% chances per wall that there could be a door
       var door = fxrand() < 0.2;
@@ -114,7 +118,7 @@ const genererFigures = (fxhash) => {
         point.height = height; // + fxrand() / 2
         point.doorstep = 0;
         if (door & (j > dist * 10 * 0.3) && j < dist * 10 * 0.7) {
-          point.height = height * 0.2;  // + fxrand() / 2
+          point.height = height * 0.2; // + fxrand() / 2
           point.doorstep = height * 0.8;
         }
         midpoints.push(point);
@@ -216,8 +220,8 @@ const genererFigures = (fxhash) => {
         pos: {
           // Position
           x: (rP.drawArgs[0] + px) * u,
-          y: py * u - 20/2,
-          z: (rP.drawArgs[1]+ pz) * u,
+          y: py * u - 20 / 2,
+          z: (rP.drawArgs[1] + pz) * u,
         },
         rot: {
           // Rotation
@@ -237,15 +241,12 @@ const genererFigures = (fxhash) => {
       });
     });
   }
-  
+
   // "create" the ground plane to unite all rooms
   figures.push({
     geometry: {
       type: "PlaneGeometry",
-      args: [
-        50 * u,
-        50 * u,
-      ],
+      args: [50 * u, 50 * u],
     },
     pos: {
       x: 0,
