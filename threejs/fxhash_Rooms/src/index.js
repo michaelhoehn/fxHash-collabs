@@ -84,20 +84,6 @@ scene.add(gridHelper);
  * Objects
  */
 
-// Anaglypic: this can be removed. only a placeholder until can be added to the figures.js
-//
-// // The ground plane
-// const ground = new THREE.PlaneGeometry(50, 50);
-// const groundMesh = new THREE.Mesh(ground, material);
-// groundMesh.position.y = -5;
-// groundMesh.rotation.x = -Math.PI / 2;
-// scene.add(groundMesh);
-
-const roomMaterial = new THREE.MeshBasicMaterial({
-  color: "gray",
-  wireframe: false,
-});
-
 var gen = genererFigures(fxhash);
 
 var figures = gen.figures;
@@ -108,7 +94,8 @@ var figures = gen.figures;
 
 for (let i = 0; i < figures.length; i++) {
   var roomMesh;
-  var roomGeomery;
+  var roomGeometry;
+  var roomMeshOutlines;
 
   // check if it's an extrude geometry and hence needs special treatment
   if (figures[i].geometry.hasOwnProperty("extrudeSettings")) {
@@ -118,20 +105,21 @@ for (let i = 0; i < figures.length; i++) {
       roomShape[d.draw](...d.drawArgs)
     );
 
-    roomGeomery = new THREE.ExtrudeGeometry(
+    roomGeometry = new THREE.ExtrudeGeometry(
       roomShape,
       figures[0].extrudeSettings
     );
   } else {
-    roomGeomery = new THREE[figures[i].geometry.type](
+    roomGeometry = new THREE[figures[i].geometry.type](
       ...figures[i].geometry.args
     );
   }
 
-  roomMesh = new THREE.Mesh(roomGeomery, material);
+  roomMesh = new THREE.Mesh(roomGeometry, material);
   roomMesh.castShadow = true;
   roomMesh.receiveShadow = true;
 
+  // translation of the mesh
   roomMesh.position.set(figures[i].pos.x, figures[i].pos.y, figures[i].pos.z);
   roomMesh.rotation.set(figures[i].rot.x, figures[i].rot.y, figures[i].rot.z);
   if (figures[i].hasOwnProperty("scale")) {
@@ -141,26 +129,10 @@ for (let i = 0; i < figures.length; i++) {
       figures[i].scale.z
     );
   }
-  /*
-  groundPlaneMesh = new THREE.Mesh(groundPlaneGeometry, material);
-  groundPlaneMesh.castShadow = true;
-  groundPlaneMesh.receiveShadow = true;
-  groundPlaneMesh.position.set(
-    figures[i].pos.x,
-    figures[i].pos.y,
-    figures[i].pos.z
-  );
-  groundPlaneMesh.rotation.set(
-    figures[i].rot.x,
-    figures[i].rot.y,
-    figures[i].rot.z
-  );
-    groundPlaneMesh.scale.set(
-    figures[i].scale.x,
-    figures[i].scale.y,
-    figures[i].scale.z
-  );
-*/
+
+  roomMeshOutlines = new THREE.LineSegments(new THREE.EdgesGeometry(roomMesh.geometry), new THREE.LineBasicMaterial({color:"black"}));
+
+  scene.add(roomMeshOutlines);
   scene.add(roomMesh);
 }
 // manufacture end
