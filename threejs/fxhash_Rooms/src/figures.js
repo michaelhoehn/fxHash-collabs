@@ -1,3 +1,10 @@
+// Randomise the placement of each room
+const roomCount = 2; // <---- TODO FXRAND
+const minHeight = 1;
+const maxHeight = 30;
+const minWidth = -30;
+const maxWidth = 30;
+
 const genererFigures = (fxhash) => {
   let alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
   let b58dec = (str) =>
@@ -107,7 +114,7 @@ const genererFigures = (fxhash) => {
       var b = { x: roomPos[i + 1].drawArgs[0], y: roomPos[i + 1].drawArgs[1] };
 
       var dist = getDistance(a, b);
-      var height = 3.5 + fxrand() * 7;
+      var height = 3.5 + fxrand() * 15;
 
       // give 20% chances per wall that there could be a door
       var door = fxrand() < 0.2;
@@ -133,7 +140,7 @@ const genererFigures = (fxhash) => {
     var b = { x: roomPos[0].drawArgs[0], y: roomPos[0].drawArgs[1] };
 
     var dist = getDistance(a, b);
-    var height = 2 + fxrand() * 5;
+    var height = 1 + fxrand() * 20;
     var door = fxrand() < 0.2;
     for (let j = 0; j < dist * 10; j++) {
       var point = interpolate(a, b, j / (dist * 10));
@@ -216,11 +223,11 @@ const genererFigures = (fxhash) => {
     // "create" the actual geometry for the wall columns
     roomPos.forEach((rP) => {
       figures.push({
-        geometry: { type: "BoxGeometry", args: [0.1, 20, 0.1] },
+        geometry: { type: "BoxGeometry", args: [0.1, maxHeight, 0.1] }, // <---- TODO Adjust the max height of the columns to match the max height of the floors
         pos: {
           // Position
           x: (rP.drawArgs[0] + px) * u,
-          y: py * u - 20 / 2,
+          y: py * u - maxHeight / 2, // <---- TODO same thing here
           z: (rP.drawArgs[1] + pz) * u,
         },
         rot: {
@@ -246,7 +253,7 @@ const genererFigures = (fxhash) => {
   figures.push({
     geometry: {
       type: "PlaneGeometry",
-      args: [50 * u, 50 * u],
+      args: [1000 * u, 1000 * u],
     },
     pos: {
       x: 0,
@@ -263,12 +270,14 @@ const genererFigures = (fxhash) => {
     hatch: true, // Fill with white texture
     full: false, // Fill with color texture (in the anaverse, red and cyan)
   });
-
-  // add the rooms <----------- This can be varied to allow for more rooms
-  // always have one at 0,0,0 the use probabilities to determine how many rooms can be added
+  
+  // Always create a room at 0,0,0
   addRoom(0, 0, 0);
-  //addRoom(-7 - fxrand() * 5, 5 + fxrand() * 5, 7 + fxrand() * 5);
-  //addRoom(7 + fxrand() * 5, 10 + fxrand() * 5, 7 + fxrand() * 5);
+
+  // TODO <---- probabilities for placement 
+  // if roomCount = 2... 3... 4... 
+  addRoom(-7 - fxrand() * 5, 5 + fxrand() * maxHeight, 7 + fxrand() * 5);
+  addRoom(7 + fxrand() * 5, 10 + fxrand() * maxHeight, 7 + fxrand() * 5);
 
   return { figures, features };
 };

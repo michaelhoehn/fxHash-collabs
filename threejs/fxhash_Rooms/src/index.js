@@ -3,6 +3,19 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "lil-gui";
 import { genererFigures } from "./figures";
 
+/** To Do 
+ * Camera: 
+ *  > Convert to Ortho camera
+ * Scene: 
+ *  > Background colors and probabilities
+ *  > High contrast shadows in preview
+ *  > Room counts and placements along with probabilities
+ * Materials: 
+ *  > Corresponding materials and probabilities
+ * Testing:
+ *  > Regularly test within Anaverse
+ */
+
 /**
  * Base
  */
@@ -16,32 +29,43 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color("white");
 
+// Texture Loader
+const textureLoader = new THREE.TextureLoader();
+
+// TODO <---- Randomise the colour of the gradient texture
+const gradientTexture = textureLoader.load('textures/gradients/5.jpg');
+gradientTexture.minFilter = THREE.NearestFilter;
+gradientTexture.magFilter = THREE.NearestFilter;
+gradientTexture.generateMipmaps = false;
+console.log(gradientTexture);
+
 /**
  * Lights
  */
 // Ambient light
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.0);
 gui.add(ambientLight, "intensity").min(0).max(1).step(0.001);
 scene.add(ambientLight);
 
 // Directional light
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-directionalLight.position.set(2, 2, -1);
-gui.add(directionalLight, "intensity").min(0).max(1).step(0.001);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2.25);
+directionalLight.position.set(-1.6,3,-0.4);
+gui.add(directionalLight, "intensity").min(0).max(5).step(0.001);
 gui.add(directionalLight.position, "x").min(-50).max(50).step(0.001);
 gui.add(directionalLight.position, "y").min(-50).max(50).step(0.001);
 gui.add(directionalLight.position, "z").min(-50).max(50).step(0.001);
 scene.add(directionalLight);
 directionalLight.castShadow = true;
+directionalLight.shadow.bias = 0;
 
 directionalLight.shadow.mapSize.width = 2048;
 directionalLight.shadow.mapSize.height = 2048;
-directionalLight.shadow.camera.top = 50;
-directionalLight.shadow.camera.bottom = -50;
-directionalLight.shadow.camera.right = 50;
-directionalLight.shadow.camera.left = -50;
-directionalLight.shadow.camera.near = -20;
-directionalLight.shadow.camera.far = 20;
+directionalLight.shadow.camera.top = 200;
+directionalLight.shadow.camera.bottom = -200;
+directionalLight.shadow.camera.right = 200;
+directionalLight.shadow.camera.left = -200;
+directionalLight.shadow.camera.near = -200;
+directionalLight.shadow.camera.far = 200;
 // directionalLight.shadow.radius = 10
 
 const directionalLightCameraHelper = new THREE.CameraHelper(
@@ -52,11 +76,17 @@ scene.add(directionalLightCameraHelper);
 
 /**
  * Materials
- */
-const material = new THREE.MeshStandardMaterial();
-material.roughness = 0.7;
-gui.add(material, "metalness").min(0).max(1).step(0.001);
-gui.add(material, "roughness").min(0).max(1).step(0.001);
+*/
+// Toon Material Tests
+const material = new THREE.MeshToonMaterial();
+material.gradientMap = gradientTexture;
+material.side = THREE.DoubleSide;
+material.dithering = true;
+
+// Standard Tests
+// const material = new THREE.MeshStandardMaterial( {
+//   color: "white"
+// });
 
 /**
  * Helpers
@@ -67,7 +97,7 @@ gui.add(material, "roughness").min(0).max(1).step(0.001);
 
 // Axes Helper
 const axes = new THREE.AxesHelper(5);
-scene.add(axes);
+//scene.add(axes);
 
 // Grid Helper
 const gridSize = 10;
@@ -78,7 +108,7 @@ const gridHelper = new THREE.GridHelper(
   "black",
   "pink"
 );
-scene.add(gridHelper);
+//scene.add(gridHelper);
 
 /**
  * Objects
@@ -131,6 +161,15 @@ for (let i = 0; i < figures.length; i++) {
   }
 
   roomMeshOutlines = new THREE.LineSegments(new THREE.EdgesGeometry(roomMesh.geometry), new THREE.LineBasicMaterial({color:"black"}));
+  roomMeshOutlines.position.set(figures[i].pos.x, figures[i].pos.y, figures[i].pos.z);
+  roomMeshOutlines.rotation.set(figures[i].rot.x, figures[i].rot.y, figures[i].rot.z);
+  if (figures[i].hasOwnProperty("scale")) {
+    roomMeshOutlines.scale.set(
+      figures[i].scale.x,
+      figures[i].scale.y,
+      figures[i].scale.z
+    );
+  }
 
   scene.add(roomMeshOutlines);
   scene.add(roomMesh);
@@ -145,12 +184,65 @@ const sizes = {
   height: window.innerHeight,
 };
 
+/**
+ * Camera
+ * Remove the camera that will not be used in the preview
+*/
+// Orthographic Camera
+const frustumSize = 80;
+const aspect = sizes.width / sizes.height;
+const orthoCam = new THREE.OrthographicCamera(
+  frustumSize * aspect / -2, 
+  frustumSize * aspect / 2, 
+  frustumSize / 2, 
+  frustumSize / -2, 
+  -100, 
+  2000
+);
+
+// OrthoCam Position
+//orthoCam.zoom = -100;
+orthoCam.position.x = 12.5; 
+orthoCam.position.y = 25;
+orthoCam.position.z = -12.5;
+
+// Perspective Camera
+const camera = new THREE.PerspectiveCamera(
+  75,
+  sizes.width / sizes.height,
+  0.1,
+  100
+);
+
+// Perspective Camera Parameters
+// camera.position.x = -5;
+// camera.position.y = 3.2;
+// camera.position.z = 5.5;
+
+// Camera Target
+// camera.lookAt(getCenterPoint(roomMesh));
+
+scene.add(orthoCam);
+//scene.add(camera);
+
+// gui camera controls
+gui.add(orthoCam.position, "x").min(-50).max(50).step(0.001);
+gui.add(orthoCam.position, "y").min(-50).max(50).step(0.001);
+gui.add(orthoCam.position, "z").min(-50).max(50).step(0.001);
+
+const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
+//scene.add(helper);
+
 window.addEventListener("resize", () => {
   // Update sizes
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
 
   // Update camera
+  camera.left = - frustumSize * aspect / 2;
+  camera.right = frustumSize * aspect / 2;
+  camera.top = frustumSize / 2;
+  camera.bottom = - frustumSize / 2;
   camera.aspect = sizes.width / sizes.height;
   camera.updateProjectionMatrix();
 
@@ -159,35 +251,8 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
-/**
- * Camera
- * TODO: Change to Orthographic Camera
- */
-
-// Base camera
-const camera = new THREE.PerspectiveCamera(
-  75,
-  sizes.width / sizes.height,
-  0.1,
-  100
-);
-
-camera.position.x = -5;
-camera.position.y = 3.2;
-camera.position.z = 5.5;
-camera.lookAt(getCenterPoint(roomMesh));
-scene.add(camera);
-
-// gui camera controls
-gui.add(camera.position, "x").min(-50).max(50).step(0.001);
-gui.add(camera.position, "y").min(-50).max(50).step(0.001);
-gui.add(camera.position, "z").min(-50).max(50).step(0.001);
-
-const helper = new THREE.CameraHelper(directionalLight.shadow.camera);
-//scene.add(helper);
-
 // Controls
-const controls = new OrbitControls(camera, canvas);
+const controls = new OrbitControls(orthoCam, canvas);
 controls.enableDamping = true;
 
 /**
@@ -222,7 +287,7 @@ const tick = () => {
   controls.update();
 
   // Render
-  renderer.render(scene, camera);
+  renderer.render(scene, orthoCam);
 
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
