@@ -39,9 +39,11 @@ const genererFigures = (fxhash) => {
   // are a simple polygon
 
   function floorGenerator() {
-    let resolution = Math.floor(4 + fxrand() * 11);
-    let stepSize = 1 + fxrand() * 4;
-    let radius = Math.floor(5 + fxrand() * 8);
+    let resolution = 4 + Math.floor(fxrand() * 15);
+    let stepSize = 1 + fxrand() * 10;
+    let radius = 5 + Math.floor(fxrand() * 20);
+    console.log("step size = " + stepSize);
+    console.log("radius size = " + radius);
     let x = [];
     let y = [];
     let angle = (Math.PI / 180) * (360 / resolution);
@@ -107,7 +109,7 @@ const genererFigures = (fxhash) => {
       var b = { x: roomPos[i + 1].drawArgs[0], y: roomPos[i + 1].drawArgs[1] };
 
       var dist = getDistance(a, b);
-      var height = 3.5 + fxrand() * 7;
+      var height = 3.5 + fxrand() * 15;
 
       // give 20% chances per wall that there could be a door
       var door = fxrand() < 0.2;
@@ -133,7 +135,7 @@ const genererFigures = (fxhash) => {
     var b = { x: roomPos[0].drawArgs[0], y: roomPos[0].drawArgs[1] };
 
     var dist = getDistance(a, b);
-    var height = 2 + fxrand() * 5;
+    var height = 1 + fxrand() * 20;
     var door = fxrand() < 0.2;
     for (let j = 0; j < dist * 10; j++) {
       var point = interpolate(a, b, j / (dist * 10));
@@ -216,11 +218,11 @@ const genererFigures = (fxhash) => {
     // "create" the actual geometry for the wall columns
     roomPos.forEach((rP) => {
       figures.push({
-        geometry: { type: "BoxGeometry", args: [0.1, 20, 0.1] },
+        geometry: { type: "BoxGeometry", args: [0.25, 100, 0.25] }, // <---- TODO Adjust the max height of the columns to match the max height of the floors
         pos: {
           // Position
           x: (rP.drawArgs[0] + px) * u,
-          y: py * u - 20 / 2,
+          y: py * u - 100 / 2, // <---- TODO same thing here
           z: (rP.drawArgs[1] + pz) * u,
         },
         rot: {
@@ -246,7 +248,7 @@ const genererFigures = (fxhash) => {
   figures.push({
     geometry: {
       type: "PlaneGeometry",
-      args: [50 * u, 50 * u],
+      args: [1000 * u, 1000 * u],
     },
     pos: {
       x: 0,
@@ -263,12 +265,54 @@ const genererFigures = (fxhash) => {
     hatch: true, // Fill with white texture
     full: false, // Fill with color texture (in the anaverse, red and cyan)
   });
+  
+  const numRooms = fxrand();
+  const maxheight = 50;
+  const maxWidth = 30;
+  let randomY = Math.floor(fxrand() * maxheight/2) + 2;
+  let roomCount = 1; 
 
-  // add the rooms <----------- This can be varied to allow for more rooms
-  // always have one at 0,0,0 the use probabilities to determine how many rooms can be added
-  addRoom(0, 0, 0);
-  //addRoom(-7 - fxrand() * 5, 5 + fxrand() * 5, 7 + fxrand() * 5);
-  //addRoom(7 + fxrand() * 5, 10 + fxrand() * 5, 7 + fxrand() * 5);
+  // Always create a room at 0, randomHeight, 0
+  addRoom(0, randomY, 0);
+
+  // Room Variations
+  if(numRooms > 0.2){
+    let rm1X = Math.floor(fxrand() * maxWidth) + 5;
+    let rm1Y = Math.floor(fxrand() * maxheight) + 2;
+    let rm1Z = 0;
+    addRoom(rm1X, rm1Y, rm1Z);
+    roomCount += 1; 
+  }
+  if(numRooms > 0.4){
+    let rm2X = 0;
+    let rm2Y = Math.floor(fxrand() * maxheight) + 2;
+    let rm2Z = Math.floor(fxrand() * maxWidth) + 5;
+    addRoom(rm2X, rm2Y, rm2Z);
+    roomCount += 1; 
+  }
+  if(numRooms > 0.6){
+    let rm3X = -(Math.floor(fxrand() * maxWidth) + 5);
+    let rm3Y = Math.floor(fxrand() * maxheight) + 2;
+    let rm3Z = 0;
+    addRoom(rm3X, rm3Y, rm3Z);
+    roomCount += 1; 
+  }
+  if(numRooms > 0.8){
+    let rm4X = 0;
+    let rm4Y = Math.floor(fxrand() * maxheight) + 2;
+    let rm4Z = -(Math.floor(fxrand() * maxWidth) + 5);
+    addRoom(rm4X, rm4Y, rm4Z);
+    roomCount += 1; 
+  }
+  if(numRooms > 0.9){
+    let rm5X = Math.floor(fxrand() * 100 - 50);
+    let rm5Y = Math.floor(fxrand() * maxheight);
+    let rm5Z = Math.floor(fxrand() * 100 - 50);
+    addRoom(rm5X, rm5Y, rm5Z);
+    roomCount += 1;
+  }
+
+  console.log("Room count = " + roomCount);
 
   return { figures, features };
 };
