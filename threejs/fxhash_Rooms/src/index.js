@@ -1,17 +1,6 @@
 import * as THREE from "three";
 import { genererFigures } from "./figures";
 
-/** To Do
- * Scene:
- *  > Background colors and probabilities
- *  > High contrast shadows in preview
- *  > Room counts and placements along with probabilities
- * Materials:
- *  > Corresponding materials and probabilities
- * Testing:
- *  > Regularly test within Anaverse
- */
-
 /**
  * Base
  */
@@ -68,10 +57,34 @@ scene.add(directionalLightCameraHelper);
  * 3 - geometry outlines
  */
 
-const palette0 = ["Master Steel", "#32363e", "#b2a268", "#e1cf93", "#acb1bd"];
-const palette1 = ["Kambucha Black", "#0c0a0d", "#28211f", "#d9a665", "#e1c9b7"];
-const palette2 = ["Peppy Aztec", "#161b1e", "#1c2a2a", "#60d2b7", "#a7d8d6"];
-const palette3 = ["Cherry Viola", "#32292f", "#b28ca6", "#f4cce4", "#e6dbd9"];
+const palette0 = [
+  "Master Steel", 
+  "#32363e", 
+  "#b2a268", 
+  "#e1cf93", 
+  "#acb1bd"
+];
+const palette1 = [
+  "Kambucha Black", 
+  "#0c0a0d", 
+  "#28211f", 
+  "#d9a665", 
+  "#e1c9b7"
+];
+const palette2 = [
+  "Peppy Aztec", 
+  "#161b1e", 
+  "#1c2a2a", 
+  "#60d2b7", 
+  "#a7d8d6"
+];
+const palette3 = [
+  "Cherry Viola", 
+  "#32292f", 
+  "#b28ca6", 
+  "#f4cce4", 
+  "#e6dbd9"
+];
 const palette4 = [
   "Moon Periwinkle",
   "#333542",
@@ -79,7 +92,13 @@ const palette4 = [
   "#ced3f2",
   "#d2d4e2",
 ];
-const palette5 = ["Rosy Rose", "#412e2f", "#b28b8e", "#e6b8bb", "#d0a8aa"];
+const palette5 = [
+  "Rosy Rose", 
+  "#412e2f", 
+  "#b28b8e", 
+  "#e6b8bb", 
+  "#d0a8aa"
+];
 const palette6 = [
   "Melanzane Sister",
   "#322931",
@@ -101,9 +120,27 @@ const palette8 = [
   "#e5d2d2",
   "#c2bec2",
 ];
-const palette9 = ["Silver Pines", "#292c16", "#8a9e38", "#cddf75", "#e1e0c2"];
-const palette10 = ["Wild Casper", "#363535", "#9eaeb4", "#dae1e2", "#d9beb1"];
-const palette11 = ["Garden Crow", "#2f2d29", "#777043", "#ada474", "#c7c4bf"];
+const palette9 = [
+  "Silver Pines", 
+  "#292c16", 
+  "#8a9e38", 
+  "#cddf75", 
+  "#e1e0c2"
+];
+const palette10 = [
+  "Wild Casper", 
+  "#363535", 
+  "#9eaeb4", 
+  "#dae1e2", 
+  "#d9beb1"
+];
+const palette11 = [
+  "Garden Crow", 
+  "#2f2d29", 
+  "#777043", 
+  "#ada474", 
+  "#c7c4bf"
+];
 const palette12 = [
   "Gallant Norway",
   "#303724",
@@ -111,9 +148,27 @@ const palette12 = [
   "#c1dd8c",
   "#aec18f",
 ];
-const palette13 = ["Lava Lucerne", "#3e4559", "#719fb3", "#9cccdd", "#b7c0d2"];
-const palette14 = ["Light Diesel", "#38302d", "#b5a285", "#f2d9bf", "#ddc7d1"];
-const palette15 = ["Wolfram Kong", "#e8ecf4", "#adb1b8", "#59595a", "#191714"];
+const palette13 = [
+  "Lava Lucerne", 
+  "#3e4559", 
+  "#719fb3", 
+  "#9cccdd", 
+  "#b7c0d2"
+];
+const palette14 = [
+  "Light Diesel", 
+  "#38302d", 
+  "#b5a285", 
+  "#f2d9bf", 
+  "#ddc7d1"
+];
+const palette15 = [
+  "Wolfram Kong", 
+  "#e8ecf4", 
+  "#adb1b8", 
+  "#59595a", 
+  "#191714"
+];
 let selectedPalette = [];
 
 // Color selection function
@@ -153,15 +208,11 @@ if (colorPicker >= 0.9375) {
   selectedPalette = palette15;
 }
 
-//console.log("Color palette = " + selectedPalette[0]);
-
 // Material Color Assignments
 let randomGeoColor = Math.floor(fxrand() * 4) + 1;
 let randomPlaneColor = Math.floor(fxrand() * 4) + 1;
 let randomLineColor = Math.floor(fxrand() * 4) + 1;
 let randomGridColor = Math.floor(fxrand() * 4) + 1;
-
-//console.log("random color is! " + randomGeoColor);
 
 const material = new THREE.MeshStandardMaterial({
   color: selectedPalette[randomGeoColor],
@@ -318,7 +369,6 @@ scene.add(groundPlaneMesh);
  */
 
 // Orthographic Camera
-
 const fact = 16;
 const orthoCam = new THREE.OrthographicCamera(
   -window.innerWidth / fact,

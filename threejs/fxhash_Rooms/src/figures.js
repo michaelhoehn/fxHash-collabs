@@ -28,30 +28,165 @@ const genererFigures = (fxhash) => {
   const figures = [];
   const features = {};
 
-  // naming
+  // naming Adj + noun + of + adj + concept
 
-  const sylarray = [
-    "de",
-    "la",
-    "dom",
-    "ra",
-    "me",
-    "ti",
-    "sa",
-    "stru",
-    "dev",
-    "gen",
-    "al",
-    "mat",
+  const adjArray = [
+    "tall ",
+    "thin ",
+    "large ",
+    "expansive ",
+    "broad ",
+    "deep ",
+    "extended ",
+    "sweeping ",
+    "wide ",
+    "boundless ",
+    "endless ",
+    "infinte ",
+    "unlimited ",
+    "capacious ",
+    "roomy ",
+    "spacious ",
+    "big ",
+    "bulky ",
+    "generous ",
+    "considerable ",
+    "grand ",
+    "great ",
+    "handsome ",
+    "oversized ",
+    "cozy ",
+    "comfortable ",
+    "gigantic ",
+    "huge ",
+    "staggering ",
+    "monumental ",
+    "tremendous ",
+    "stupendous ",
+    "super ",
+    "titanic ",
+    "enormous ",
+    "gargatuan ",
+    "atomic ",
+    "baby ",
+    "microscopic ",
+    "miniature ",
+    "minute ",
+    "teeny ",
+    "pocket-sized ",
+    "model ",
+    "archetypical "
   ];
 
-  const structlen = 3 + Math.floor(fxrand() * 8);
+  const nounArray = [
+    "room ",
+    "habitat ",
+    "quarters ",
+    "domicile ",
+    "abode ",
+    "dwelling ",
+    "habitation ",
+    "hearth ",
+    "home ",
+    "gallery ",
+    "casa ",
+    "estate ",
+    "hall ",
+    "manor ",
+    "hermitage ",
+    "hovel ",
+    "hut ",
+    "hutch ",
+    "shack ",
+    "shelter ",
+    "bungalow ",
+    "casita ",
+    "ranch ",
+    "collective ",
+    "place ",
+    "lanai ",
+    "piazza ",
+    "stoop ",
+    "portico ",
+    "solarium ",
+    "cloister ",
+    "arcade ",
+    "prototype "
+  ];
+
+  const consArray = [
+    "of ",
+    "de ",
+    "van ",
+    "von ",
+    "di ",
+    "de ",
+    "z ",
+    "for ",
+    "voor ",
+    "pour ",
+    "zum ",
+    "por ",
+    "per ",
+    "dla "
+  ];
+
+  const conceptArray = [
+    "expanse",
+    "space",
+    "architecture",
+    "viewing",
+    "habitation",
+    "dwelling",
+    "loitering",
+    "lollygagging",
+    "enjoyment",
+    "pleasure",
+    "form",
+    "cohabitation",
+    "occupation",
+    "possession",
+    "valuables",
+    "treasures",
+    "prosperity",
+    "acquisition",
+    "property",
+    "real estate",
+    "collection",
+    "fortune",
+    "assets",
+    "things",
+    "opulence",
+    "riches",
+    "substance",
+    "wealth",
+    "worth",
+    "abundance",
+    "affluence",
+    "success",
+    "void"
+  ];
 
   var structurename = "";
 
-  for (let i = 0; i < structlen; i++) {
-    structurename += sylarray[Math.floor(fxrand() * sylarray.length)];
+  var adj1Index = Math.floor(fxrand() * adjArray.length);
+  var adj2Index = Math.floor(fxrand() * adjArray.length);
+  var nounIndex = Math.floor(fxrand() * nounArray.length);
+  var consIndex = Math.floor(fxrand() * consArray.length);
+  var conceptIndex = Math.floor(fxrand() * conceptArray.length);
+
+  if (adj1Index == adj2Index) {
+    // single chance to reroll adj
+    adj2Index = Math.floor(fxrand() * adjArray.length);
   }
+
+  const adj1 = adjArray[adj1Index];
+  const noun = nounArray[nounIndex];
+  const cons = consArray[consIndex];
+  const adj2 = adjArray[adj2Index];
+  const concept = conceptArray[conceptIndex];
+
+  structurename = adj1 + noun + cons + adj2 + concept
 
   features.Name = "Stilted " + structurename.toUpperCase();
 
@@ -72,8 +207,6 @@ const genererFigures = (fxhash) => {
     let resolution = 4 + Math.floor(fxrand() * 15);
     let stepSize = 1 + fxrand() * 10;
     let radius = 5 + Math.floor(fxrand() * 20);
-    // console.log("step size = " + stepSize);
-    // console.log("radius size = " + radius);
     let x = [];
     let y = [];
     let angle = (Math.PI / 180) * (360 / resolution);
@@ -368,10 +501,7 @@ const genererFigures = (fxhash) => {
     roomCount += 1;
   }
 
-  // console.log("Room count = " + roomCount);
-
   features["Number of Rooms"] = roomCount;
-
   return { figures, features };
 };
 
