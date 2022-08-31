@@ -28,11 +28,41 @@ const genererFigures = (fxhash) => {
   const figures = [];
   const features = {};
 
+  // naming
+
+  const sylarray = [
+    "de",
+    "la",
+    "dom",
+    "ra",
+    "me",
+    "ti",
+    "sa",
+    "stru",
+    "dev",
+    "gen",
+    "al",
+    "mat",
+  ];
+
+  const structlen = 3 + Math.floor(fxrand() * 8);
+
+  var structurename = "";
+
+  for (let i = 0; i < structlen; i++) {
+    structurename += sylarray[Math.floor(fxrand() * sylarray.length)];
+  }
+
+  features.Name = "Stilted " + structurename.toUpperCase();
+
   // Here the variable u is the unit used to scale
   var u = 1;
 
   if (fxrand() < 0.05) {
     u += fxrand() * 3;
+    features.Explosion = true;
+  } else {
+    features.Explosion = false;
   }
 
   // The floor generator yields a "position" array of points which
@@ -42,8 +72,8 @@ const genererFigures = (fxhash) => {
     let resolution = 4 + Math.floor(fxrand() * 15);
     let stepSize = 1 + fxrand() * 10;
     let radius = 5 + Math.floor(fxrand() * 20);
-    console.log("step size = " + stepSize);
-    console.log("radius size = " + radius);
+    // console.log("step size = " + stepSize);
+    // console.log("radius size = " + radius);
     let x = [];
     let y = [];
     let angle = (Math.PI / 180) * (360 / resolution);
@@ -73,7 +103,7 @@ const genererFigures = (fxhash) => {
     return positions;
   }
 
-  // Two helpers to build the walls
+  // three helpers to build the walls
 
   function interpolate(a, b, frac) {
     var nx = a.x + (b.x - a.x) * frac;
@@ -90,9 +120,25 @@ const genererFigures = (fxhash) => {
 
   // The addRoom function, which adds a room centered on the px/py/pz position;
 
+  features.fullism = fxrand() < 0.25;
+
   function addRoom(px, py, pz) {
     // generate a polygon
     const roomPos = floorGenerator();
+
+    var roomArr = [];
+    roomPos.forEach((d) => {
+      roomArr.push({ x: d.drawArgs[0], y: d.drawArgs[1] });
+    });
+
+    var wallfull = false;
+
+    if (features.fullism) {
+      if (fxrand() < 0.4) {
+        wallfull = true;
+        features["Room " + roomCount + " is"] = "full";
+      }
+    }
 
     // create an array containing the walls
     const midpoints = [];
@@ -104,6 +150,9 @@ const genererFigures = (fxhash) => {
     //
 
     // place the wall beams between two points of each polygon
+
+    var roomChaos = fxrand() < 0.2;
+
     for (let i = 0; i < roomPos.length - 1; i++) {
       var a = { x: roomPos[i].drawArgs[0], y: roomPos[i].drawArgs[1] };
       var b = { x: roomPos[i + 1].drawArgs[0], y: roomPos[i + 1].drawArgs[1] };
@@ -114,6 +163,8 @@ const genererFigures = (fxhash) => {
       // give 20% chances per wall that there could be a door
       var door = fxrand() < 0.2;
 
+      // if door, add a little chaos on top?
+
       // place the beams coordinates;
       for (let j = 0; j < dist * 10; j++) {
         var point = interpolate(a, b, j / (dist * 10));
@@ -121,7 +172,11 @@ const genererFigures = (fxhash) => {
         point.doorstep = 0;
         if (door & (j > dist * 10 * 0.3) && j < dist * 10 * 0.7) {
           point.height = height * 0.2; // + fxrand() / 2
+
           point.doorstep = height * 0.8;
+        }
+        if (roomChaos) {
+          point.height += fxrand() / 3;
         }
         midpoints.push(point);
       }
@@ -172,8 +227,8 @@ const genererFigures = (fxhash) => {
         },
         name: "wall",
         lines: true, // Display color segments (like wireframe, but faces not triangles)
-        hatch: true, // Fill with white texture
-        full: false, // Fill with color texture (in the anaverse, red and cyan)
+        hatch: !wallfull, // Fill with white texture
+        full: wallfull, // Fill with color texture (in the anaverse, red and cyan)
       });
     });
 
@@ -189,7 +244,7 @@ const genererFigures = (fxhash) => {
           bevelThickness: 0,
           bevelSize: 0,
           bevelOffset: 0,
-          bevelSegments: 0,
+          bevelSegments: 1,
         },
       },
       pos: {
@@ -207,12 +262,13 @@ const genererFigures = (fxhash) => {
       scale: {
         x: 1,
         y: 1,
-        z: 0.1,
+        z: 1,
       },
       name: "floor",
       lines: true, // Display color segments (like wireframe, but faces not triangles)
       hatch: true, // Fill with white texture
       full: false, // Fill with color texture (in the anaverse, red and cyan)
+      uncentered: true,
     });
 
     // "create" the actual geometry for the wall columns
@@ -222,7 +278,7 @@ const genererFigures = (fxhash) => {
         pos: {
           // Position
           x: (rP.drawArgs[0] + px) * u,
-          y: py * u - 100 / 2, // <---- TODO same thing here
+          y: (py - 50) * u, // <---- TODO same thing here
           z: (rP.drawArgs[1] + pz) * u,
         },
         rot: {
@@ -252,7 +308,7 @@ const genererFigures = (fxhash) => {
     },
     pos: {
       x: 0,
-      y: -2,
+      y: -22 + Math.floor(fxrand() * 15),
       z: 0,
     },
     rot: {
@@ -265,46 +321,46 @@ const genererFigures = (fxhash) => {
     hatch: true, // Fill with white texture
     full: false, // Fill with color texture (in the anaverse, red and cyan)
   });
-  
+
   const numRooms = fxrand();
   const maxheight = 50;
   const maxWidth = 30;
-  let randomY = Math.floor(fxrand() * maxheight/2) + 2;
-  let roomCount = 1; 
+  //let randomY = Math.floor((fxrand() * maxheight) / 2) + 2;
+  let roomCount = 1;
 
-  // Always create a room at 0, randomHeight, 0
-  addRoom(0, randomY, 0);
+  // Always create a room at 0, 0, 0 (if higher than 0,the user gets stuck in the collider)
+  addRoom(0, 0, 0);
 
   // Room Variations
-  if(numRooms > 0.2){
+  if (numRooms > 0.2) {
     let rm1X = Math.floor(fxrand() * maxWidth) + 5;
     let rm1Y = Math.floor(fxrand() * maxheight) + 2;
     let rm1Z = 0;
     addRoom(rm1X, rm1Y, rm1Z);
-    roomCount += 1; 
+    roomCount += 1;
   }
-  if(numRooms > 0.4){
+  if (numRooms > 0.4) {
     let rm2X = 0;
     let rm2Y = Math.floor(fxrand() * maxheight) + 2;
     let rm2Z = Math.floor(fxrand() * maxWidth) + 5;
     addRoom(rm2X, rm2Y, rm2Z);
-    roomCount += 1; 
+    roomCount += 1;
   }
-  if(numRooms > 0.6){
+  if (numRooms > 0.6) {
     let rm3X = -(Math.floor(fxrand() * maxWidth) + 5);
     let rm3Y = Math.floor(fxrand() * maxheight) + 2;
     let rm3Z = 0;
     addRoom(rm3X, rm3Y, rm3Z);
-    roomCount += 1; 
+    roomCount += 1;
   }
-  if(numRooms > 0.8){
+  if (numRooms > 0.8) {
     let rm4X = 0;
     let rm4Y = Math.floor(fxrand() * maxheight) + 2;
     let rm4Z = -(Math.floor(fxrand() * maxWidth) + 5);
     addRoom(rm4X, rm4Y, rm4Z);
-    roomCount += 1; 
+    roomCount += 1;
   }
-  if(numRooms > 0.9){
+  if (numRooms > 0.9) {
     let rm5X = Math.floor(fxrand() * 100 - 50);
     let rm5Y = Math.floor(fxrand() * maxheight);
     let rm5Z = Math.floor(fxrand() * 100 - 50);
@@ -312,7 +368,9 @@ const genererFigures = (fxhash) => {
     roomCount += 1;
   }
 
-  console.log("Room count = " + roomCount);
+  // console.log("Room count = " + roomCount);
+
+  features["Number of Rooms"] = roomCount;
 
   return { figures, features };
 };
