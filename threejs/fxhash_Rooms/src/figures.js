@@ -28,11 +28,41 @@ const genererFigures = (fxhash) => {
   const figures = [];
   const features = {};
 
+  // naming
+
+  const sylarray = [
+    "de",
+    "la",
+    "dom",
+    "ra",
+    "me",
+    "ti",
+    "sa",
+    "stru",
+    "dev",
+    "gen",
+    "al",
+    "mat",
+  ];
+
+  const structlen = 3 + Math.floor(fxrand() * 8);
+
+  var structurename = "";
+
+  for (let i = 0; i < structlen; i++) {
+    structurename += sylarray[Math.floor(fxrand() * sylarray.length)];
+  }
+
+  features.Name = "Stilted " + structurename.toUpperCase();
+
   // Here the variable u is the unit used to scale
   var u = 1;
 
   if (fxrand() < 0.05) {
     u += fxrand() * 3;
+    features.Explosion = true;
+  } else {
+    features.Explosion = false;
   }
 
   // The floor generator yields a "position" array of points which
