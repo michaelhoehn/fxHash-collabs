@@ -16,6 +16,8 @@ import { genererFigures } from "./figures";
  * Base
  */
 
+var gen = genererFigures(fxhash);
+
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 
@@ -185,6 +187,16 @@ const lineColor = new THREE.LineBasicMaterial({
   opacity: opacity,
 });
 
+const fullmaterial = new THREE.MeshStandardMaterial({
+  color: selectedPalette[randomLineColor],
+});
+randomLineColor;
+const fulllinecolor = new THREE.LineBasicMaterial({
+  color: selectedPalette[randomGeoColor],
+  transparent: true,
+  opacity: opacity,
+});
+
 // Grid Helper
 const gridSizeOptions = [20, 50, 100, 250, 500, 1000];
 let gridOption;
@@ -218,11 +230,9 @@ scene.add(gridHelper);
  * Objects
  */
 
-var gen = genererFigures(fxhash);
-
 var figures = gen.figures;
 var features = gen.features;
-
+document.title = features.Name;
 features.Palette = selectedPalette[0];
 
 for (let i = 0; i < figures.length; i++) {
@@ -284,6 +294,11 @@ for (let i = 0; i < figures.length; i++) {
       figures[i].scale.y,
       figures[i].scale.z
     );
+  }
+
+  if (figures[i].full) {
+    roomMesh.material = fullmaterial;
+    roomMeshOutlines.material = fulllinecolor;
   }
 
   scene.add(roomMeshOutlines);
@@ -391,7 +406,7 @@ document.addEventListener("keydown", (e) => {
 
     renderer.render(scene, orthoCam);
     var link = document.createElement("a");
-    link.download = "export.png";
+    link.download = features.Name + ".png";
     link.href = canvas.toDataURL();
     link.click();
 
@@ -410,4 +425,4 @@ document.addEventListener("keydown", (e) => {
 
 window.$fxhashFeatures = features;
 
-//console.log(window.$fxhashFeatures);
+console.log(window.$fxhashFeatures.Name);
