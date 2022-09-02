@@ -188,7 +188,7 @@ const genererFigures = (fxhash) => {
 
   structurename = adj1 + noun + cons + adj2 + concept
 
-  features.Name = "Stilted " + structurename.toUpperCase();
+  features.Name = "STILTED " + structurename.toUpperCase();
 
   // Here the variable u is the unit used to scale
   var u = 1;
@@ -253,7 +253,7 @@ const genererFigures = (fxhash) => {
 
   // The addRoom function, which adds a room centered on the px/py/pz position;
 
-  features.fullism = fxrand() < 0.25;
+  features.Fullism = fxrand() < 0.25;
 
   function addRoom(px, py, pz) {
     // generate a polygon
@@ -266,7 +266,7 @@ const genererFigures = (fxhash) => {
 
     var wallfull = false;
 
-    if (features.fullism) {
+    if (features.Fullism) {
       if (fxrand() < 0.4) {
         wallfull = true;
         features["Room " + roomCount + " is"] = "full";
